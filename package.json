@@ -1,0 +1,17 @@
+{
+  "name": "graff",
+  "description": "A Node.JS graph theory library with a decoupled persistence backend.",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "./.git"
+  },
+  "author": "Richard Frankel <richard@frankel.tv>",
+  "main": "graff.js",
+  "directories": {
+    "lib": "."
+  },
+  "engines": {
+    "node": "*"
+  }
+}
