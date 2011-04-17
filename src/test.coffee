@@ -6,13 +6,18 @@ get_test_graph = () ->
     for v in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
         g.add_vertex(v)
     
-    g.connect('A', 'B', 2)
-    g.connect('A', 'C', 1)
-    g.connect('C', 'D', 4)
-    g.connect('B', 'E', 10)
-    g.connect('D', 'F', 1)
-    g.connect('F', 'E', 3)
-    g.connect('G', 'H', 2)
+    g.directed = false
+    
+    # from http://en.wikipedia.org/wiki/File:Dijksta_Anim.gif
+    g.connect('A', 'C', 14)
+    g.connect('A', 'D', 9)
+    g.connect('A', 'E', 7)
+    g.connect('C', 'D', 2)
+    g.connect('D', 'E', 10)
+    g.connect('D', 'F', 11)
+    g.connect('E', 'F', 15)
+    g.connect('C', 'B', 9)
+    g.connect('F', 'B', 6)
     
     return g
 
