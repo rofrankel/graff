@@ -10,7 +10,7 @@ class Graph
     
     add_vertex: (label) ->
         if label not of @vertices
-            @vertices[label] = []
+            @vertices[label] = 1
     
     connect: (v1, v2, weight, label) ->
         if v1 of @vertices and v2 of @vertices and not (@get_edge(v1, v2))
