@@ -2,3 +2,5 @@
 src/
 *graff-mongoose*
 .git*
+Cakefile
+*.md
