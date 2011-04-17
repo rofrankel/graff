@@ -18,11 +18,10 @@ get_test_graph = () ->
 
 get_path = (start, end, uniform=false) ->
     g = get_test_graph()
-    v = g.vertices
     g.uniform = uniform
     
-    print_path = (p) -> if p then console.log('dist=' + p[1] + ', path=' + (v.label for v in p[0]).join(', '))
-    p = g.get_path(v[start], v[end], true)
+    print_path = (p) -> if p then console.log('dist=' + p[1] + ', path=' + p[0].join(', '))
+    p = g.get_path(start, end, true)
     print_path(p)
     return p
 
