@@ -1,0 +1,4 @@
+*.coffee
+src/
+*graff-mongoose*
+.git*
