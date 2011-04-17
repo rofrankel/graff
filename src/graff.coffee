@@ -1,5 +1,5 @@
 _ = require 'underscore'
-heap = require './heap.js'
+heap = require '../vendor/heap.js'
 
 class Vertex
     constructor: (@label) ->
@@ -13,23 +13,38 @@ class Edge
 
 class Graph
     constructor: (opts={}) ->
-        @vertices = []
+        @vertices = {}
         @edges = []
         @directed = opts.directed ? true
         @uniform = opts.uniform ? false
     
     add_vertex: (label) ->
-        @vertices.push(new Vertex(label))
+        if label not of @vertices
+            @vertices[label] = new Vertex(label)
+    
+    maybe_string_to_vertex: (v) ->
+        if typeof v is 'string' and v of @vertices
+            return @vertices[v]
+        else
+            return v
     
     connect: (v1, v2, weight, label) ->
-        if not (@get_edge(v1, v2))
+        v1 = @maybe_string_to_vertex(v1)
+        v2 = @maybe_string_to_vertex(v2)
+        
+        if v1.label of @vertices and v2.label of @vertices and not (@get_edge(v1, v2))
             @edges.push(new Edge(v1, v2, weight, label))
     
     disconnect: (v1, v2) ->
+        v1 = @maybe_string_to_vertex(v1)
+        v2 = @maybe_string_to_vertex(v2)
+        
         if edge = @get_edge(v1, v2)
             @edges = _.without(@edges, [edge])
     
     get_edge: (v1, v2) ->
+        v1 = @maybe_string_to_vertex(v1)
+        v2 = @maybe_string_to_vertex(v2)
         edges = _.select(@edges, (e) -> v1 in e.vertices and v2 in e.vertices)
         
         if @directed
@@ -41,6 +56,8 @@ class Graph
         return if edges.length then edges[0] else null
     
     get_children: (v, with_edge_weight=false) ->
+        v = @maybe_string_to_vertex(v)
+        
         children = ([edge.vertices[1], edge.weight] for edge in _.select(@edges, (e) -> e.vertices[0] is v))
         
         if not @directed
@@ -51,7 +68,10 @@ class Graph
         
         return children
     
-    get_path: (start, goal) ->
+    get_path: (start, goal, with_dist=false) ->
+        start = @maybe_string_to_vertex(start)
+        goal = @maybe_string_to_vertex(goal)
+        
         if @get_edge(start, goal)
             return [start, goal]
         
@@ -67,7 +87,10 @@ class Graph
                 new_path.push(cur_v)
                 
                 if cur_v is goal
-                    return new_path
+                    if with_dist
+                        return [new_path, new_path.length]
+                    else
+                        return new_path
                 
                 for child in @get_children(cur_v) when child.label not of seen
                     q.push([child, new_path])
@@ -91,7 +114,10 @@ class Graph
                 new_path.push(cur_v)
                 
                 if cur_v is goal
-                    return new_path
+                    if with_dist
+                        return [new_path, cur_dist]
+                    else
+                        return new_path
                 
                 for [child, child_dist] in @get_children(cur_v, true) when child.label not of visited
                     new_dist = cur_dist + child_dist
@@ -103,11 +129,9 @@ class Graph
                         h.push([child, new_dist, new_path])
             
             return null
-
+    
     
 
 _.extend(exports, {
-    Vertex
-    Edge
     Graph
 })

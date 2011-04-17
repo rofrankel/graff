@@ -1,15 +1,22 @@
 {
   "name": "graff",
-  "description": "A Node.JS graph theory library with a decoupled persistence backend.",
-  "version": "0.0.0",
+  "description": "A Node.JS graph theory library.",
+  "keywords": ["graph", "graph theory"],
+  "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "./.git"
+    "url": "git://github.com:rofrankel/graff.git"
   },
   "author": "Richard Frankel <richard@frankel.tv>",
-  "main": "graff.js",
+  "main": "./lib/graff.js",
   "directories": {
     "lib": "."
+  },
+  "dependencies": {
+    "underscore": ">= 1.1.5"
+  },
+  "devDependencies": {
+    "coffee-script": ">= 1.0.1"
   },
   "engines": {
     "node": "*"
