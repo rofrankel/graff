@@ -1,4 +1,5 @@
 _ = require 'underscore'
+heap = require './heap.js'
 
 class Vertex
     constructor: (@label) ->
@@ -6,7 +7,7 @@ class Vertex
 
 
 class Edge
-    constructor: (v1, v2, @label=_.uniqueId('edge_'), @weight=1) ->
+    constructor: (v1, v2, @weight=1, @label=_.uniqueId('edge_')) ->
         @vertices = [v1, v2]
 
 
@@ -14,33 +15,39 @@ class Graph
     constructor: (opts={}) ->
         @vertices = []
         @edges = []
-        @directed = opts.directed ? false
-        @uniform = opts.uniform ? true
+        @directed = opts.directed ? true
+        @uniform = opts.uniform ? false
     
-    connect: (v1, v2, label) ->
+    add_vertex: (label) ->
+        @vertices.push(new Vertex(label))
+    
+    connect: (v1, v2, weight, label) ->
         if not (@get_edge(v1, v2))
-            @edges.push(new Edge(v1, v2))
+            @edges.push(new Edge(v1, v2, weight, label))
     
     disconnect: (v1, v2) ->
         if edge = @get_edge(v1, v2)
             @edges = _.without(@edges, [edge])
     
     get_edge: (v1, v2) ->
-        edges = _.select(@edges, (e) -> v1 in e and v2 in e)
+        edges = _.select(@edges, (e) -> v1 in e.vertices and v2 in e.vertices)
         
         if @directed
-            edges = _.select(edges, (e) -> _.indexOf(e, v1) < _.indexOf(e, v2))
+            edges = _.select(edges, (e) -> _.indexOf(e.vertices, v1) < _.indexOf(e.vertices, v2))
         
         if v1 is v2
-            edges = _.select(edges, (e) -> _.select(e, (v) -> v is v1).length > 1)
+            edges = _.select(edges, (e) -> _.select(e.vertices, (v) -> v is v1).length > 1)
         
         return if edges.length then edges[0] else null
     
-    get_children: (v) ->
-        children = (edge[1] for edge in _.select(@edges, (e) -> e[0] is v))
+    get_children: (v, with_edge_weight=false) ->
+        children = ([edge.vertices[1], edge.weight] for edge in _.select(@edges, (e) -> e.vertices[0] is v))
         
         if not @directed
-            children = _.uniq(children.concat((edge[0] for edge in _.select(@edges, (e) -> e[1] is v))))
+            children = _.uniq(children.concat(([edge.vertices[0], edge.weight] for edge in _.select(@edges, (e) -> e.vertices[1] is v))))
+        
+        unless with_edge_weight
+            children = (child[0] for child in children)
         
         return children
     
@@ -50,6 +57,7 @@ class Graph
         
         if @uniform
         # breadth-first search
+            seen = {}
             q = ([child, [start]] for child in @get_children(start))
             x = 0
             while q.length
@@ -61,15 +69,42 @@ class Graph
                 if cur_v is goal
                     return new_path
                 
-                for child in @get_children(cur_v)
+                for child in @get_children(cur_v) when child.label not of seen
                     q.push([child, new_path])
+                    seen[child.label] = 1
             
             return null
         else
         # Dijkstra's algorithm
+            seen = {}
+            visited = {}
+            visited[start.label] = 1
+            h = new heap.BinaryHeap((e) -> e[1])
+            for [child, child_dist] in @get_children(start, true)
+                h.push([child, child_dist, [start]])
+            
+            while h.size()
+                [cur_v, cur_dist, cur_path] = h.pop()
+                visited[cur_v.label] = 1
+                
+                new_path = cur_path.slice()
+                new_path.push(cur_v)
+                
+                if cur_v is goal
+                    return new_path
+                
+                for [child, child_dist] in @get_children(cur_v, true) when child.label not of visited
+                    new_dist = cur_dist + child_dist
+                    if child of seen
+                        if new_dist < seen[child][1]
+                            seen[child][1] = new_dist
+                            h.bubbleUp(seen[child])
+                    else
+                        h.push([child, new_dist, new_path])
+            
+            return null
 
-
-
+    
 
 _.extend(exports, {
     Vertex
