@@ -9,5 +9,5 @@ a more efficient uniform cost search implementation is used. If you set
 Graph.directed to false (true by default), then edges will be considered
 undirected for the sake of path finding.
 
-See lib/test.js for examples. This file isn't a real test suite, just a useful
-file that sped up some testing during development.
+See src/test.coffee for examples. This file isn't a real test suite, just a
+useful file that sped up some testing during development.
