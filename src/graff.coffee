@@ -6,12 +6,13 @@ class Graph
         @vertices = {}
         @directed = opts.directed ? true
         @uniform = opts.uniform ? false
+        if opts.edges then @load(opts.edges)
     
     add_vertex: (label) ->
         if label not of @vertices
             @vertices[label] = {}
     
-    connect: (v1, v2, weight, label) ->
+    connect: (v1, v2, weight=1, label=_.uniqueId('edge_')) ->
         if v1 of @vertices and v2 of @vertices
             edge = {weight, label}
             if v2 not in @vertices[v1] then @vertices[v1][v2] = edge
@@ -20,6 +21,17 @@ class Graph
     disconnect: (v1, v2) ->
         delete @vertices[v1][v2]
         if not @directed then delete @vertices[v2][v1]
+    
+    # edges is an array of arrays of the form [v1, v2, weight, label]
+    load: (edges, clean=true) ->
+        if clean then @vertices = {}
+        
+        for [v1, v2, weight, label] in edges
+            if v1 not of @vertices then @add_vertex(v1)
+            if v2 not of @vertices then @add_vertex(v2)
+            @connect(v1, v2, weight, label)
+        
+        return this
     
     get_path: (start, goal, with_dist=false) ->
         if @uniform
