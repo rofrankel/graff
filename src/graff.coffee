@@ -92,6 +92,38 @@ class Graph
                         h.push([child, new_dist, new_path])
             
             return null
+    
+    # pre is executed, if existent, on nodes upon first visit
+    # post is executed, if existent, on nodes upon completion
+    dfs: (pre, post) ->
+        visited = {}
+        
+        for vertex of @vertices when vertex not of visited
+            @_dfs_visit(vertex, visited, pre, post)
+    
+    _dfs_visit: (vertex, visited, pre, post) ->
+        queue = []
+        queue.push(vertex)
+        while queue.length
+            current = queue.shift()
+            visited[current] = 1
+            
+            pre?(current)
+            for child of @vertices[vertex] when child not of visited
+                @_dfs_visit(child, visited, pre, post)
+            post?(current)
+    
+    
+    tsort: ->
+        sorted = []
+        
+        @dfs(
+            null,
+            (vertex) ->
+                sorted.unshift(vertex)
+        )
+        
+        return sorted
 
 
 exports.Graph = Graph
