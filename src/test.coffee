@@ -1,3 +1,4 @@
+{ok} = require 'assert'
 _ = require 'underscore'
 graff = require './graff'
 
