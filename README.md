@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/rofrankel/graff.png)](http://travis-ci.org/rofrankel/graff)
 Graff is a Node.JS graph theory library. At some point, persistence backends may
 be added, but for the time being it just runs in memory.
 
